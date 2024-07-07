@@ -1,32 +1,21 @@
+// src/index.js
 const express = require('express');
-const app = express();
-const db = require('./persistence');
-const getItems = require('./routes/getItems');
+const bodyParser = require('body-parser');
 const addItem = require('./routes/addItem');
+const getItems = require('./routes/getItems');
 const updateItem = require('./routes/updateItem');
 const deleteItem = require('./routes/deleteItem');
 
-app.use(express.json());
-app.use(express.static(__dirname + '/static'));
+const app = express();
+const port = process.env.PORT || 3000;
 
-app.get('/items', getItems);
-app.post('/items', addItem);
-app.put('/items/:id', updateItem);
-app.delete('/items/:id', deleteItem);
+app.use(bodyParser.json());
 
-db.init().then(() => {
-    app.listen(3000, () => console.log('Listening on port 3000'));
-}).catch((err) => {
-    console.error(err);
-    process.exit(1);
+app.use('/add', addItem);
+app.use('/get', getItems);
+app.use('/update', updateItem);
+app.use('/delete', deleteItem);
+
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
-
-const gracefulShutdown = () => {
-    db.teardown()
-        .catch(() => {})
-        .then(() => process.exit());
-};
-
-process.on('SIGINT', gracefulShutdown);
-process.on('SIGTERM', gracefulShutdown);
-process.on('SIGUSR2', gracefulShutdown); // Sent by nodemon

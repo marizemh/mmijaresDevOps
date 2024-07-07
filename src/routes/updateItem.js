@@ -1,10 +1,15 @@
-const db = require('../persistence');
+// src/routes/updateItem.js
+const express = require('express');
+const router = express.Router();
+const db = require('../persistence/mysql');
 
-module.exports = async (req, res) => {
-    await db.updateItem(req.params.id, {
-        name: req.body.name,
-        completed: req.body.completed,
+router.put('/:id', (req, res) => {
+    const { id } = req.params;
+    const { title, description } = req.body;
+    db.query('UPDATE tasks SET title = ?, description = ? WHERE id = ?', [title, description, id], (err, result) => {
+        if (err) throw err;
+        res.send('Task updated');
     });
-    const item = await db.getItem(req.params.id);
-    res.send(item);
-};
+});
+
+module.exports = router;

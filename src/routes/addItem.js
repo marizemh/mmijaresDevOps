@@ -1,13 +1,14 @@
-const db = require('../persistence');
-const {v4 : uuid} = require('uuid');
+// src/routes/addItem.js
+const express = require('express');
+const router = express.Router();
+const db = require('../persistence/mysql');
 
-module.exports = async (req, res) => {
-    const item = {
-        id: uuid(),
-        name: req.body.name,
-        completed: false,
-    };
+router.post('/', (req, res) => {
+    const { title, description } = req.body;
+    db.query('INSERT INTO tasks (title, description) VALUES (?, ?)', [title, description], (err, result) => {
+        if (err) throw err;
+        res.send('Task added');
+    });
+});
 
-    await db.storeItem(item);
-    res.send(item);
-};
+module.exports = router;
